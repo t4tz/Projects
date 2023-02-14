@@ -1,0 +1,137 @@
+//This program lets the user select a currecy and then convert it, get the the original and converted sums and the average
+//Author: Vikas Mackevicius
+//Date: 24/02/2022
+#include <stdio.h>
+
+#define SIZE 3
+
+//change fuctions
+float change_to_Euro(float []);
+float change_to_Dollar(float []);
+
+
+int main()
+{
+    int number = 0;
+    static float amount[SIZE] = {0}; //static so the changes would stay
+    float dollar_avg = 0;
+    float eur_avg = 0;
+    float copy_amount[SIZE] = {0};
+
+    //repeat until correct inputs are written
+    do
+    {
+        printf("\n\nEnter the currecy that you want\n1 - Euro\n2 - Dollar\n3 - Exit\n");
+        scanf("%d", &number);
+        switch (number)
+        {
+            case 1: //case for euros
+            {
+                printf("\nYou selected Euro\n");
+                
+                printf("\nInput 3 amounts\n");
+                
+                for(int i = 0; i < SIZE; i++)
+                {
+                    printf("number %d: ", i + 1);
+                    scanf("%f", &amount[i]);
+                    copy_amount[i] = amount[i];
+                }
+                
+                printf("\nOriginal amounts before exhange: \n");
+                //for loop for original amounts
+                for(int i = 0; i < SIZE; i++)
+                {
+                    printf("%.2f ", copy_amount[i]);
+                }
+
+                dollar_avg = change_to_Dollar(amount);
+                
+                printf("\n\nSums in Dollars: \n");
+                //for loop for exchanged values
+                for(int i = 0; i < SIZE; i++)
+                {
+                    printf("%.2f ", amount[i]);
+                }
+                printf("\n\nDollar average is: %.2f", dollar_avg);
+                
+                break;
+            }//end case 1
+            case 2: //case for dollars
+            {
+                printf("\nYou selected Dollars\n");
+                
+                printf("\nInput 3 amounts\n");
+
+                for(int i = 0; i < SIZE; i++)
+                {
+                    printf("number %d: ", i + 1);
+                    scanf("%f", &amount[i]);
+                    copy_amount[i] = amount[i];
+                }
+
+                eur_avg = change_to_Euro(amount);
+                
+                printf("\nOriginal amounts before exhange: \n");
+                //for loop for original amounts
+                for(int i = 0; i < SIZE; i++)
+                {
+                    printf("%.2f ", copy_amount[i]);
+                }
+                
+                printf("\n\nSums in Euros: \n");
+
+                //for loop for exchanged values
+                for(int i = 0; i < SIZE; i++)
+                {
+                    printf("%.2f ", amount[i]);
+                }
+
+                printf("\n\nEuro average is: %.2f", eur_avg);
+                
+                break;
+            }//end case 2
+            case 3://shutdown button
+            {
+                printf("Exiting\n");
+                break;
+            }//end case 3
+            default:
+            {
+                printf("Incorrect input\n");
+                break;
+            }//end default
+        }//end switch
+    } while (number != 3);
+    
+    return 0;
+}
+
+
+//-------------------------------------------------------------
+//Functions
+
+float change_to_Euro(float amount[])
+{
+    float temp_sum = 0;
+
+    for(int i = 0; i < SIZE; i++)
+    {
+        amount[i] = amount[i] * 0.9;
+        temp_sum = temp_sum + amount[i];
+    }
+    return temp_sum/SIZE; //returns the average
+}
+
+
+float change_to_Dollar(float amount[])
+{
+    float temp_sum = 0;
+
+    for(int i = 0; i < SIZE; i++)
+    {
+        amount[i] = amount[i] * 1.1;
+        temp_sum = temp_sum + amount[i];
+    }
+    return temp_sum/SIZE; //returns the average
+}
