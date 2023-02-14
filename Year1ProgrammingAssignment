@@ -1,0 +1,357 @@
+/*
+This is the code for a Lotto game. The goal of this game is to guess as many winning numbers as you can. There is a menu on which you can navigate. First you need to input 6 numbers and then you can see your inputs sorted or unsorted. After you check you winnings you can play the game again. In the end you can check your history which shows the numbers you have wrote.
+Author: Vikas Mackevicius
+Date: 11/03/2022
+*/
+
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
+#include <stdbool.h>
+
+#define SIZE 6
+#define MIN 1
+#define MAX 42
+
+void Menu(); //Function which simply displays the menu of the Lotto game
+void Write(int [], int []); //Fuction which lets the user input 6 numbers
+void Output(int []); //Function which outputs the numbers
+void Sort(int []); //Function that sorts the numbers
+void Results(int [], int []); //Function that checks your winnings
+void History(int [], int [], int[]); //Function that keeps track of your inputs
+void PrintHistory(int [], int []); //Function that prints out our history
+bool Confirm(bool); //Confirmation function before leaving the game
+
+
+
+int main()
+{
+    int userInput = 0;
+    int Inputs[SIZE];
+    int copyInputs[SIZE]; //copied array
+    int winArray[SIZE] = {1, 3, 5, 7, 9, 11};
+    int bigArray[MAX] = {0}; //Array that contains 42 0s, it will be used to keep track of the written numbers
+    int keepTrack[MAX] = {0};
+    bool stopRepeat = false; //boolean for error checking that option 1 is picked only once until the end of the game
+    bool stopRush = false; //boolean which makes sure that 6 numbers are written before any other command works
+    bool confirmation = false; 
+    bool leave = false;
+    
+    Menu();//Calls the menu originally
+    
+    do
+    {
+        scanf("%d", &userInput);
+        while(getchar() != '\n'); //Makes sure no extra inputs are allowed
+
+        system("cls"); //Clear the menu so it doesn't stack up overtime
+
+        Menu(); //Prints the menu again as command before this clears everything
+
+        switch (userInput)
+        {
+            case 1:
+            {
+                if(stopRepeat == false)
+                {
+                    Write(Inputs, copyInputs); //Calling the function which lets the user input 6 numbers
+                    Sort(Inputs); //Sort function here, in case user check the winnings before going through step 2 and 3
+                    History(Inputs, bigArray, keepTrack);//This is the function that counts the inputs.
+                    printf("\nSuccess! You can now proceed with the Lotto game\n");
+                    stopRepeat = true;
+                    stopRush = true;
+                    
+                } 
+                else
+                {
+                    printf("You already chose 6 numbers which are: ");
+                    Output(copyInputs);//Output function which calls copied array with unsorted numbers
+                    
+                    printf("\nFinish the game to retry!\n");
+                }  
+                break;
+            }//end case1
+            case 2:
+            {
+                if(stopRush == true)
+                {
+                    printf("Your numbers are (unsorted): ");
+                    Output(copyInputs);//copied array with unsorted numbers
+                }
+                else
+                {
+                    printf("You need to enter 6 numbers first!\n");
+                }
+                break;
+            }//end case2
+            case 3:
+            {
+                if(stopRush == true)
+                {
+                    printf("Entered numbers, but sorted: ");
+                    Output(Inputs);//same output functions, except it calls the original array which has been sorted
+                }
+                else
+                {
+                    printf("You need to enter 6 numbers first!\n");
+                }
+                break;
+            }//end case3
+            case 4:
+            {
+                if(stopRush == true)
+                {
+                    Results(Inputs, winArray);//Function which shows your winnings
+                    stopRepeat = false;
+                    stopRush = false;
+                }
+                else
+                {
+                    printf("You need to enter 6 numbers first!\n");
+                }
+                break;
+            }//end case4
+            case 5:
+            {
+                if(stopRush == true || stopRepeat == false)
+                {
+                    PrintHistory(keepTrack, bigArray);//Function that prints your history
+                }
+                else
+                {
+                    printf("You have not played the game yet!\n");
+                }
+                break;
+            }//end case5
+            case 6:
+            {
+                leave = Confirm(confirmation);//function returns a value (true or false), depending on what the user chooses
+                break;
+            }//end case6
+            default:
+            {
+                printf("Wrong input\n");
+                break;
+            }//end default
+        }
+    }while(leave != true);//end do while, only ends if user picks "no", in the confirmation function
+    
+    return 0;
+}//end main
+
+//Function which has all the printf statements for the menu
+void Menu()
+{
+    printf("\n-----------L-o-t-t-o-------------\n\n");
+    printf("(1) - Enter six numbers here\n");
+    printf("(2) - Check your inputs\n");
+    printf("(3) - Your inputs sorted\n");
+    printf("(4) - Check if you won\n");
+    printf("(5) - History of past games\n");
+    printf("(6) - Exit\n");
+    printf("\n--------------------------------\n");
+}
+
+//Function that gets the input of a user
+void Write(int Inputs[], int copyInputs[])
+{
+    int count = 0;
+    int t_input = 0;//temp variable
+    
+    printf("Input %d numbers between %d and %d:\n", SIZE, MIN, MAX);
+    
+    while(count != SIZE)//makes sure that only 6 inputs are written
+    {
+        scanf("%d", &t_input); //scans the temp variable
+        while(getchar() != '\n');
+
+        if(t_input > MIN - 1 && t_input < MAX + 1) //checks if the inputs is between 0 - 42, if it is then it is put in the "Inputs" array and "copyInputs" array
+        {
+            printf("Input [%d] - %d\n", count + 1, t_input);
+            *(Inputs + count) = t_input;
+            *(copyInputs + count) = *(Inputs + count); 
+            count++;
+            t_input = 50; //Not sure why the code has a bug if I do not use it, but what it does is sets the input to be not in range of 1-42 which then makes the while(getchar() !- '\n') to take effect. Without it, only the first letter is validated, meaning if first number is inputted correctly, second number is no longer checked.
+        }
+        else
+        {
+            printf("Wrong input, must be %d - %d\n", MIN, MAX);
+            
+        }
+    }
+}
+
+//Very simple output functions
+void Output(int Inputs[])
+{
+    for(int i = 0; i < SIZE; i++)
+    {
+        if(i != SIZE - 1) //This is so the comma does not stay in the end
+        {
+            printf("%d, ", *(Inputs + i));
+        }
+        else
+        {
+            printf("%d\n", *(Inputs + i));
+        }
+    }
+    
+}
+
+//Insertion sort with the complexity of n^2 which is not efficient, however the array is only 6 inputs, meaning there won't be much difference by using faster sorting algorightms
+void Sort(int Inputs[])
+{
+    int temp = 0;
+    int j = 0;
+
+    for(int i = 1; i < SIZE; i++)
+    {
+        temp = *(Inputs + i);
+        j = i;
+        while(*(Inputs + (j - 1)) > temp)
+        {
+            *(Inputs + j) = *(Inputs + ( j - 1));
+            j = j - 1;
+        }    
+        *(Inputs + j) = temp;
+    }
+}
+
+//Function which checks user's winnings
+void Results(int Inputs[], int winArray[])
+{
+    int correct = 0;
+
+    //Counts how many correct guesses been made
+    for(int i = 0; i < SIZE; i++)
+    {
+        if(*(Inputs + i) == *(winArray + i))
+        {
+            correct++;
+        }
+    }
+
+    //switch to give an output depending on the result
+    switch(correct)
+    {
+        case 3:
+        {
+            printf("You matched 3 numbers!\n\nYou have won a cinema pass!\n");
+            break;
+        }
+        case 4:
+        {
+            printf("You matched 4 numbers!\n\nYou have won one weekend away!\n");
+            break;
+        }
+        case 5:
+        {
+            printf("You matched 5 numbers!!\n\nYou have won a brand new car!!!\n");
+            break;
+        }
+        case 6:
+        {
+            printf(">>>>JACKPOT<<<<\n\n");
+            break;
+        }
+        default:
+        {
+            printf("No winnings, better luck next time!\n");
+        }
+        
+    }
+
+}
+
+//Function that keeps track of the inputs
+void History(int Inputs[], int bigArray[], int keepTrack[])//bigArray is being used because it stores all the numbers up to 42
+{
+    for (int i = 0; i < MAX; ++i)//This for loop goes up to 42 
+    {   
+        for(int j = 0; j < SIZE; j++)//Casted for loop goes upto 6 
+        {
+            if ( *(Inputs + j) == i)//Checks if the written number matches with any numbers in the bigArray(containing all numbers)
+            {
+                *(bigArray + i) = *(bigArray + i) + 1;//Every input which matches is incremended here
+                *(keepTrack + i) = *(Inputs + j);//This is to keep track of which number has been incremented, for later use
+                
+            }
+        } 
+   }
+}
+
+//Function which prints the history
+void PrintHistory(int keepTrack[], int bigArray[])
+{
+    printf("History of your inputs:\n");
+
+    for(int i = 0; i < MAX; i++)//for loop to go up to 42
+    {
+        if(*(bigArray + i) > 0)//checks if a number has been mentioned at least once
+        {         
+            if(*(bigArray + i) == 1)//If number has been mentioned once, proper grammar will be used
+            {
+                printf("Number %d has been selected %d time\n", *(keepTrack + i), *(bigArray + i));//prints the number from the bigArray and the keepTrack array which kept track of all numbers that were incremented
+            }
+            else
+            {
+                printf("Number %d has been selected %d times\n", *(keepTrack + i), *(bigArray + i));
+            }
+        }
+    }
+}
+
+//Confirmation functions before exiting the game
+bool Confirm(bool confirmation)
+{
+    char yesno = ' ';
+
+    printf("Are you sure you want to leave? Y/N\n");
+    
+    do
+    {
+        scanf("%c", &yesno);
+        while(getchar() != '\n');//Makes sure no wrong input is made
+        system("cls");//clears the system so it matches the rest of the game
+
+        Menu();//since everything was cleared, a menu in outputted
+
+        printf("Are you sure you want to leave? Y/N\n\n");
+
+        switch(yesno)//switch statement for user decision, either y, Y or n, N
+        {
+            case 'Y':
+            {
+                printf("Exiting\n\nHope to see you back soon!\n");
+                return confirmation = true;
+                break;
+
+            }
+            case 'y':
+            {
+                printf("Exiting\n\nHope to see you back soon!\n");
+                return confirmation = true;
+                break;
+
+            }
+            case 'N':
+            {
+                printf("Good choice!\n\nYou can continue playing\n");
+                return confirmation = false;
+                break;
+            }
+            case 'n':
+            {
+                printf("Good choice!\n\nYou can continue playing\n");
+                return confirmation = false;
+                break;
+            }
+            default:
+            {
+                printf("Wrong Input, Y/N\n");
+                break;
+            }
+        }
+
+    }while(yesno != 'y' || yesno != 'n' || yesno != 'Y' || yesno != 'N');//do while so only these inputs are an option
+}
